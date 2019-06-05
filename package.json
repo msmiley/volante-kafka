@@ -7,7 +7,7 @@
   "repository": "msmiley/volante-kafka.git",
   "license": "ISC",
   "dependencies": {
-    "kafka-rest-client": "^1.11.7"
+    "node-rdkafka": "^2.7.0"
   },
   "keywords": [
     "volante"
