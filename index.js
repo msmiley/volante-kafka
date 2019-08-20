@@ -39,6 +39,9 @@ module.exports = {
 	      this.stream = new Kafka.Producer.createWriteStream(this.kafkaOptions, {}, {
 	        topic: this.topic,
 	      });
+	      this.stream.on('error', (err) => {
+	      	this.$error('error thrown by kafka stream', err);
+	      });
       } catch (e) {
 	  		this.$error('error initializing kafka stream', e);
 	  	}
