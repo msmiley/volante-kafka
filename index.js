@@ -35,15 +35,23 @@ module.exports = {
 	},
 	methods: {
 	  initializeStream() {
-      this.stream = new Kafka.Producer.createWriteStream(this.kafkaOptions, {}, {
-        topic: this.topic,
-      });
+      try {
+	      this.stream = new Kafka.Producer.createWriteStream(this.kafkaOptions, {}, {
+	        topic: this.topic,
+	      });
+      } catch (e) {
+	  		this.$error('error initializing kafka stream', e);
+	  	}
 	  },
 	  sendMessage(msg) {
-	    let queuedSuccess = this.stream.write(Buffer.from(msg));
-	    if (!queuedSuccess) {
-	      this.$warn('did not queue message:', msg);
-	    }
+	  	try {
+		    let queuedSuccess = this.stream.write(Buffer.from(msg));
+		    if (!queuedSuccess) {
+		      this.$warn('did not queue message:', msg);
+		    }
+	  	} catch (e) {
+	  		this.$error('error sending kafka msg', e);
+	  	}
 	  }
 	},
 };
