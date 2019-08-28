@@ -40,20 +40,22 @@ module.exports = {
 	        topic: this.topic,
 	      });
 	      this.stream.on('error', (err) => {
-	      	this.$error('error thrown by kafka stream', err);
+	      	console.error('error thrown by kafka stream', err);
 	      });
       } catch (e) {
-	  		this.$error('error initializing kafka stream', e);
+	  		console.error('error initializing kafka stream', e);
 	  	}
 	  },
 	  sendMessage(msg) {
 	  	try {
 		    let queuedSuccess = this.stream.write(Buffer.from(msg));
 		    if (!queuedSuccess) {
-		      this.$warn('did not queue message:', msg);
+		    	// use console to avoid event explosion
+		      console.error('did not queue message:', msg);
 		    }
 	  	} catch (e) {
-	  		this.$error('error sending kafka msg', e);
+	  		// use console to avoid event explosion
+	  		console.error('error sending kafka msg', e);
 	  	}
 	  }
 	},
