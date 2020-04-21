@@ -48,6 +48,10 @@ module.exports = {
 	  },
 	  sendMessage(msg) {
 	  	try {
+				// stringify the msg if it's not a string
+				if (typeof(msg) !== 'string') {
+					msg = JSON.stringify(msg);
+				}
 		    let queuedSuccess = this.stream.write(Buffer.from(msg));
 		    if (!queuedSuccess) {
 		    	// use console to avoid event explosion
