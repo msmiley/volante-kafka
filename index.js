@@ -24,8 +24,10 @@ module.exports = {
 	  topic: '',
     kafkaOptions: {},
   },
-  data: {
-    stream: null,
+  data() {
+		return {
+	    stream: null,
+		};
   },
 	updated() {
 	  if (this.stream) {
