@@ -1,4 +1,4 @@
-const utils = require('utils');
+const utils = require('./utils');
 const config = utils.getConfig();
 const kafka = require('kafka-node');
 

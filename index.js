@@ -1,5 +1,4 @@
 const kafka = require('kafka-node');
-
 const Producer = require('./producer');
 
 //
