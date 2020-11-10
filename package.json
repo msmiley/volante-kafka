@@ -1,13 +1,13 @@
 {
   "name": "volante-kafka",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "volante bridge to kafka",
-  "author": "Mike Smiley <msmiley@alumni.rice.edu>",
+  "author": "Matt Barber <zengamer21@gmail.com>",
   "url": "https://github.com/msmiley/volante-kafka",
   "repository": "msmiley/volante-kafka.git",
   "license": "ISC",
   "dependencies": {
-    "node-rdkafka": "^2.7.0"
+    "kafka-node": "^5.0.0"
   },
   "keywords": [
     "volante"

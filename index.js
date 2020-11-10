@@ -1,68 +1,35 @@
-const Kafka = require('node-rdkafka');
+const kafka = require('kafka-node');
+
+const Producer = require('./producer');
 
 //
 // Class manages a kafka connection and produces kafka messages based on
 // Volante events.
 //
 module.exports = {
-	name: 'VolanteKafka',
-	events: {
-	  'VolanteKafka.message'(msg) {
-      this.sendMessage(msg);
-	  }
+  name: 'VolanteKafka',
+  events: {
+    'VolanteKafka.message'(topic, msg) {
+      this.topic = topic;
+      this.publish(msg);
+    },
   },
   init() {
-    this.$log('librdkafka version', Kafka.librdkafkaVersion);
-    this.$log('librdkafka features', Kafka.features);
+    this.initialize();
   },
   done() {
-	  if (this.stream) {
-	    this.stream.close();
-	  }
+    Producer.done();
   },
-	props: {
-	  topic: '',
+  props: {
+    topic: '',
     kafkaOptions: {},
   },
-  data() {
-		return {
-	    stream: null,
-		};
+  methods: {
+    initialize() {
+      Producer.initialize();
+    },
+    publish(msg) {
+      Producer.publish(this.topic, msg);
+    },
   },
-	updated() {
-	  if (this.stream) {
-	    this.stream.close();
-	  }
-	  this.initializeStream();
-	},
-	methods: {
-	  initializeStream() {
-      try {
-	      this.stream = new Kafka.Producer.createWriteStream(this.kafkaOptions, {}, {
-	        topic: this.topic,
-	      });
-	      this.stream.on('error', (err) => {
-	      	console.error('error thrown by kafka stream', err);
-	      });
-      } catch (e) {
-	  		console.error('error initializing kafka stream', e);
-	  	}
-	  },
-	  sendMessage(msg) {
-	  	try {
-				// stringify the msg if it's not a string
-				if (typeof(msg) !== 'string') {
-					msg = JSON.stringify(msg);
-				}
-		    let queuedSuccess = this.stream.write(Buffer.from(msg));
-		    if (!queuedSuccess) {
-		    	// use console to avoid event explosion
-		      console.error('did not queue message:', msg);
-		    }
-	  	} catch (e) {
-	  		// use console to avoid event explosion
-	  		console.error('error sending kafka msg', e);
-	  	}
-	  }
-	},
 };
