@@ -26,23 +26,23 @@ module.exports = {
     } catch (e) {
       console.error('error initializing kafka-node', e);
     }
-    
-    const admin = new kafka.Admin(this.client);
-    admin.listTopics((err, res) => {
-      //console.log(JSON.stringify(res));
-      if(err){
-        console.log(err);
-      }
+  
+    // const admin = new kafka.Admin(this.client);
+    // admin.listTopics((err, res) => {
+    //   //console.log(JSON.stringify(res));
+    //   if(err){
+    //     console.log(err);
+    //   }
 
-      if(res && res['metadata']){
-        if(!(topic in res['metadata'])){
-          console.log(`Creating new topic: ${topic}`);
-          this.client.createTopics([{ topic : topic, partitions: 1, replicationFactor: 1}], (err,res) =>{
-            console.log(err || res);
-          })
-        }
-      }
-    });
+    //   if(res && res['metadata']){
+    //     if(!(topic in res['metadata'])){
+    //       console.log(`Creating new topic: ${topic}`);
+    //       this.client.createTopics([{ topic : topic, partitions: 1, replicationFactor: 1}], (err,res) =>{
+    //         console.log(err || res);
+    //       })
+    //     }
+    //   }
+    // });
 
     // First wait for the producer to be initialized
     this.producer.on('ready', () => {
