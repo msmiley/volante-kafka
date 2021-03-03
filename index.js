@@ -1,4 +1,4 @@
-const Producer = require("./producer");
+const kafka = require("kafka-node");
 
 //
 // Class manages a kafka connection and produces kafka messages based on
@@ -7,32 +7,68 @@ const Producer = require("./producer");
 module.exports = {
   name: "VolanteKafka",
   events: {
-    "VolanteKafka.message"(topic, msg) {
-      this.topic = topic;
-      this.publish(msg);
+    "VolanteKafka.publish"(topic, msg) {
+      this.publish(...arguments);
+    },
+    "VolanteKafka.start"() {
+      this.initialize();
     },
   },
   init() {
     if (this.configProps) {
       this.$log("attempting to initialize using config props");
-      this.initialize(this.host, this.port);
+      this.initialize();
     }
   },
   done() {
-    Producer.done();
+    if (this.producer) {
+      this.producer.close();
+    }
   },
   props: {
     host: "127.0.0.1",
     port: 27017,
-    topic: "",
-    kafkaOptions: {},
+  },
+  data() {
+    return {
+      client: null,
+      producer: null,
+      publishedMessages: 0,
+    };
   },
   methods: {
-    initialize(host, port) {
-      Producer.initialize(host + ":" + port);
+    initialize() {
+      try {
+        this.client = new kafka.KafkaClient({
+          kafkaHost: `${this.host}:${this.port}`,
+        });
+        this.producer = new kafka.Producer(this.client);
+
+        // First wait for the producer to be initialized
+        this.producer.on("ready", () => {
+          this.$log("ready to send kafka messages");
+        });
+
+        this.producer.on("error", (err) => {
+          this.$error(err);
+        });
+      } catch (e) {
+        this.$error("error initializing kafka-node", e);
+      }
     },
-    publish(msg) {
-      Producer.publish(this.topic, msg);
+    publish(topic, msg) {
+      this.client.refreshMetadata([topic], (err) => {
+        if (err) {
+          this.$error(err);
+        }
+
+        this.producer.send([{ topic, messages: [msg] }], (err, result) => {
+          if (err) {
+            this.$error(err);
+          }
+          this.publishedMessages++;
+        });
+      });
     },
   },
 };
