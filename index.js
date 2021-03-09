@@ -34,29 +34,33 @@ module.exports = {
       client: null,
       producer: null,
       publishedMessages: 0,
+      refreshedTopics: [],
     };
   },
   methods: {
     initialize() {
       try {
+        let kafkaHost = `${this.host}:${this.port}`;
+        this.$log(`setting up client to ${kafkaHost}`);
         this.client = new kafka.KafkaClient({
-          kafkaHost: `${this.host}:${this.port}`,
+          kafkaHost
         });
         this.producer = new kafka.Producer(this.client);
 
         // First wait for the producer to be initialized
-        this.producer.on("ready", () => {
-          this.$log("ready to send kafka messages");
+        this.producer.on('ready', () => {
+          this.$log('ready to send kafka messages');
         });
 
-        this.producer.on("error", (err) => {
+        this.producer.on('error', (err) => {
           this.$error(err);
         });
       } catch (e) {
-        this.$error("error initializing kafka-node", e);
+        this.$error('error initializing kafka-node', e);
       }
     },
     publish(topic, msg) {
+      // this.$isDebug && this.$debug('publish', topic, msg);
       this.client.refreshMetadata([topic], (err) => {
         if (err) {
           this.$error(err);
@@ -64,8 +68,9 @@ module.exports = {
 
         this.producer.send([{ topic, messages: [msg] }], (err, result) => {
           if (err) {
-            this.$error(err);
+            return this.$error(err);
           }
+          this.$isDebug && this.$debug(`published message to ${topic}`);
           this.publishedMessages++;
         });
       });
