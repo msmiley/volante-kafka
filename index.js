@@ -59,7 +59,7 @@ module.exports = {
         this.$error('error initializing kafka-node', e);
       }
     },
-    publish(topic, msg) {
+    publish(topic, msg, callback) {
       // this.$isDebug && this.$debug('publish', topic, msg);
       this.client.refreshMetadata([topic], (err) => {
         if (err) {
@@ -68,10 +68,13 @@ module.exports = {
 
         this.producer.send([{ topic, messages: [msg] }], (err, result) => {
           if (err) {
-            return this.$error(err);
+            this.$error(err);
+            callback && callback(err);
+            return;
           }
           this.$isDebug && this.$debug(`published message to ${topic}`);
           this.publishedMessages++;
+          callback && callback(null, this.publishedMessages);
         });
       });
     },
