@@ -6,16 +6,8 @@ const kafka = require("kafka-node");
 //
 module.exports = {
   name: "VolanteKafka",
-  events: {
-    "VolanteKafka.publish"(topic, msg) {
-      this.publish(...arguments);
-    },
-    "VolanteKafka.start"() {
-      this.initialize();
-    },
-  },
   init() {
-    if (this.configProps) {
+    if (this.configProps && this.enabled) {
       this.$log("attempting to initialize using config props");
       this.initialize();
     }
@@ -26,6 +18,7 @@ module.exports = {
     }
   },
   props: {
+    enabled: true,
     host: "127.0.0.1",
     port: 27017,
   },
@@ -36,6 +29,14 @@ module.exports = {
       publishedMessages: 0,
       refreshedTopics: [],
     };
+  },
+  events: {
+    "VolanteKafka.publish"(topic, msg) {
+      this.publish(...arguments);
+    },
+    "VolanteKafka.start"() {
+      this.initialize();
+    },
   },
   methods: {
     initialize() {
